@@ -1,0 +1,13 @@
+<div class="form-group tgforms:dropdown {{ rdf:Property }}">
+  <span class="label">{{ rdfs:label }}</span>
+  <div class="btn-group">
+    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+      <span class="value">{{ tgforms:hasDefault }}</span><span class="caret"></span>
+    </button>
+    <ul class="dropdown-menu dropdown-menu-right" role="menu">
+      {{#tgforms:hasOption}}
+        <li><a href="#">{{.}}</a></li>
+      {{/tgforms:hasOption}}
+    </ul>
+  </div>
+</div>

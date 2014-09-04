@@ -1,0 +1,23 @@
+form.tgForms label {
+  width: 100%;
+}
+
+form.tgForms span.label {
+  color: black;
+  font-size: 14px;
+  padding-left: 0;
+}
+
+form.tgForms span.repeat {
+  color: #428bca;
+  cursor: pointer;
+  font-weight: normal;
+}
+
+form.tgForms span.repeat:hover {
+  text-decoration: underline;
+}
+
+form.tgForms div.form-group div {
+  float: right;
+}

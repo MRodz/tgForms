@@ -1,0 +1,7 @@
+<div class="form-group tgforms:button {{ rdf:Property }}">
+  <span class="label">{{ rdfs:label }}</span>
+  <div>
+    <span class="value">{{ tgforms:hasDefault }}</span>
+    <button type="button" class="btn btn-default">Choose</button>
+  </div>
+</div>
