@@ -148,6 +148,36 @@ class tgForms
 
     return jsonld
 
+  # fillForm
+
+  fillForm: (base, selector) ->
+    formTriples = store.find(base, null, null)
+
+    for formTriple in formTriples
+      predicate = formTriple.predicate
+      predicate = replacePrefixes(predicate)
+      predicate = predicate.replace(":", "\\:")
+
+      object = util.getLiteralValue(formTriple.object)
+
+      $this = $(selector + " div." + predicate + " input").last()
+
+      if not $this.val()
+        $this.val(object)
+      else
+        field = $this.closest("div.form-group").clone()
+        field.children().find("input").val(object)
+        $this.closest("div.form-group").after(field)
+
+      $this = $(selector + " div." + predicate + " span.value").last()
+
+      if not $this.text()
+        $this.text(object)
+      else
+        field = $this.closest("div.form-group").clone()
+        field.children().find("span.value").text(object)
+        $this.closest("div.form-group").after(field)
+
 
 #################
 ## Interaction ##
