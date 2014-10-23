@@ -82,13 +82,13 @@ class tgForms
 
     parser.parse(turtle, tripleCall, prefixCall)
 
-  # getFormHTML
+  # buildForm
 
-  getFormHTML: (formTitle, getFormCall) ->
+  buildForm: (subject, selector) ->
     form = []
     formHTML = "<form role=\"form\" class=\"tgForms\">"
 
-    formTriples = store.find(null, "tgforms:belongsToForm", formTitle)
+    formTriples = store.find(null, "tgforms:belongsToForm", subject)
 
     for formTriple in formTriples
       field = {}
@@ -128,14 +128,14 @@ class tgForms
       formHTML += fieldHTML
 
     formHTML += "</form>"
-    getFormCall(formHTML)
+    $(selector).html(formHTML)
 
-  # getJSONLD
+  # getInput
 
-  getJSONLD: (base, selector) ->
+  getInput: (subject, selector) ->
     jsonld = {
       "@context": storePrefixes,
-      "@id": base
+      "@id": subject
     }
 
     $(selector + " input").each ->
@@ -150,8 +150,8 @@ class tgForms
 
   # fillForm
 
-  fillForm: (base, selector) ->
-    formTriples = store.find(base, null, null)
+  fillForm: (subject, selector) ->
+    formTriples = store.find(subject, null, null)
 
     for formTriple in formTriples
       predicate = formTriple.predicate
