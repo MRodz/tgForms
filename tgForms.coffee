@@ -31,9 +31,15 @@ class tgForms
     oldValue = jsonld[key]
 
     if domObject.val()
-      newValue = domObject.val()
+      if store.find(key, "rdfs:range", "rdfs:Resource")[0]
+        newValue = {"@id": domObject.val()}
+      else
+        newValue = domObject.val()
     else
-      newValue = domObject.text()
+      if store.find(key, "rdfs:range", "rdfs:Resource")[0]
+        newValue = {"@id": domObject.text()}
+      else
+        newValue = domObject.text()
 
     if oldValue? and typeof(oldValue) is "object" and newValue
       jsonld[key].push(newValue)
@@ -159,19 +165,22 @@ class tgForms
   # fillForm
 
   fillForm: (subject, selector) ->
-    formTriples = store.find(subject, null, null)
+    triples = store.find(subject, null, null)
 
-    for formTriple in formTriples
-      predicate = formTriple.predicate
+    for triple in triples
+      predicate = triple.predicate
       predicate = replacePrefixes(predicate)
       predicate = predicate.replace(":", "\\:")
 
-      object = util.getLiteralValue(formTriple.object)
+      object = triple.object
+      object = util.getLiteralValue(object) if util.isLiteral(object)
+      object = replacePrefixes(object)
+
       $this = $(selector + " div." + predicate).last()
 
       if not $this.find("input").val() or $this.find("span.value").text()
         $this.find("input").val(object)
-        $this.find("input").text(object)
+        $this.find("span.value").text(object)
       else
         this.cloneField($this, object)
 
