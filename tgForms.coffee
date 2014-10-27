@@ -130,6 +130,14 @@ class tgForms
     formHTML += "</form>"
     $(selector).html(formHTML)
 
+  # cloneField
+
+  cloneField: (domObject, input) ->
+    field = domObject.closest("div.form-group").clone()
+    field.children().find("input").val(input)
+    field.children().find("span.value").text(input)
+    domObject.closest("div.form-group").after(field)
+
   # getInput
 
   getInput: (subject, selector) ->
@@ -159,24 +167,13 @@ class tgForms
       predicate = predicate.replace(":", "\\:")
 
       object = util.getLiteralValue(formTriple.object)
+      $this = $(selector + " div." + predicate).last()
 
-      $this = $(selector + " div." + predicate + " input").last()
-
-      if not $this.val()
-        $this.val(object)
+      if not $this.find("input").val() or $this.find("span.value").text()
+        $this.find("input").val(object)
+        $this.find("input").text(object)
       else
-        field = $this.closest("div.form-group").clone()
-        field.children().find("input").val(object)
-        $this.closest("div.form-group").after(field)
-
-      $this = $(selector + " div." + predicate + " span.value").last()
-
-      if not $this.text()
-        $this.text(object)
-      else
-        field = $this.closest("div.form-group").clone()
-        field.children().find("span.value").text(object)
-        $this.closest("div.form-group").after(field)
+        this.cloneField($this, object)
 
 
 #################
@@ -185,12 +182,7 @@ class tgForms
 
 $(document).on("click", "span.repeat", ->
   $this = $(this)
-
-  field = $this.closest("div.form-group").clone()
-  # field.children().find("input").val("")
-  # field.children().find("span.value").text("")
-  $this.closest("div.form-group").after(field)
-
+  tgf.cloneField($this, "") # tgForms instance may have different name
   focusCall = -> $this.closest("div.form-group").next().find("input").focus()
   setTimeout(focusCall, 25)
 )
