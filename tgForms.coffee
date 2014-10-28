@@ -136,6 +136,15 @@ class tgForms
     formHTML += "</form>"
     $(selector).html(formHTML)
 
+  # getFormURI
+
+  getFormURI: (subject) ->
+    type = store.find(subject, "rdf:type", null)[0].object
+
+    form = store.find(null, "tgforms:represents", type)[0].subject
+    form = util.getLiteralValue(form) if util.isLiteral(form)
+    form = replacePrefixes(form)
+
   # getInput
 
   getInput: (subject, type, selector) ->
@@ -154,6 +163,13 @@ class tgForms
       jsonld = addToJSONLD(jsonld, $this)
 
     return jsonld
+
+  # getTypeURI
+
+  getTypeURI: (subject) ->
+    type = store.find(subject, "rdf:type", null)[0].object
+    type = util.getLiteralValue(type) if util.isLiteral(type)
+    type = replacePrefixes(type)
 
   # fillForm
 
