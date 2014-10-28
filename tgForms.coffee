@@ -138,10 +138,11 @@ class tgForms
 
   # getInput
 
-  getInput: (subject, selector) ->
+  getInput: (subject, type, selector) ->
     jsonld = {
       "@context": storePrefixes,
-      "@id": subject
+      "@id": subject,
+      "@type": type
     }
 
     $(selector + " input").each ->
