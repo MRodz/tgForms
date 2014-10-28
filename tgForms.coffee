@@ -69,7 +69,8 @@ class tgForms
   sortFields = (a, b) ->
     if a["tgforms:hasPriority"] > b["tgforms:hasPriority"]
       return -1
-    else if a["tgforms:hasPriority"] < b["tgforms:hasPriority"]
+
+    if a["tgforms:hasPriority"] < b["tgforms:hasPriority"]
       return 1
 
     return 0
