@@ -136,14 +136,6 @@ class tgForms
     formHTML += "</form>"
     $(selector).html(formHTML)
 
-  # cloneField
-
-  cloneField: (domObject, input) ->
-    field = domObject.closest("div.form-group").clone()
-    field.children().find("input").val(input)
-    field.children().find("span.value").text(input)
-    domObject.closest("div.form-group").after(field)
-
   # getInput
 
   getInput: (subject, selector) ->
@@ -182,7 +174,10 @@ class tgForms
         $this.find("input").val(object)
         $this.find("span.value").text(object)
       else
-        this.cloneField($this, object)
+        field = $this.closest("div.form-group").clone()
+        field.children().find("input").val(object)
+        field.children().find("span.value").text(object)
+        $this.closest("div.form-group").after(field)
 
 
 #################
@@ -191,7 +186,12 @@ class tgForms
 
 $(document).on("click", "span.repeat", ->
   $this = $(this)
-  tgf.cloneField($this, "") # tgForms instance may have different name
+
+  field = $this.closest("div.form-group").clone()
+  field.children().find("input").val("")
+  field.children().find("span.value").text("")
+  $this.closest("div.form-group").after(field)
+
   focusCall = -> $this.closest("div.form-group").next().find("input").focus()
   setTimeout(focusCall, 25)
 )
