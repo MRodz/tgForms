@@ -26,29 +26,33 @@ class tgForms
 
   # addToJSONLD
 
-  addToJSONLD = (jsonld, domObject) ->
-    key = domObject.closest("div.form-group").attr("class").replace(/.* /, "")
-    oldValue = jsonld[key]
+  addToJSONLD = (jsonLD, domObject) ->
+    classes = domObject.closest("div.form-group").attr("class").split(" ")
+
+    for str in classes
+      key = str if str.indexOf(":") > -1 and str.indexOf("tgforms") is -1
+
+    oldValue = jsonLD[key]
 
     if domObject.val()
-      if store.find(key, "rdfs:range", "rdfs:Resource")[0]
-        newValue = {"@id": domObject.val()}
-      else
-        newValue = domObject.val()
+      newValue = domObject.val()
+
+      if newValue and store.find(key, "rdfs:range", "rdfs:Resource")[0]
+        newValue = {"@id": newValue}
     else
-      if store.find(key, "rdfs:range", "rdfs:Resource")[0]
-        newValue = {"@id": domObject.text()}
-      else
-        newValue = domObject.text()
+      newValue = domObject.text()
 
-    if oldValue? and typeof(oldValue) is "object" and newValue
-      jsonld[key].push(newValue)
-    else if oldValue? and typeof(oldValue) is "string" and newValue
-      jsonld[key] = [oldValue, newValue]
+      if newValue and store.find(key, "rdfs:range", "rdfs:Resource")[0]
+        newValue = {"@id": newValue}
+
+    if oldValue instanceof Array
+      jsonLD[key].push(newValue)
+    else if oldValue and newValue
+      jsonLD[key] = [oldValue, newValue]
     else if newValue
-      jsonld[key] = newValue
+      jsonLD[key] = newValue
 
-    return jsonld
+    return jsonLD
 
   # prefixCall
 
@@ -149,7 +153,7 @@ class tgForms
   # getInput
 
   getInput: (subject, type, selector) ->
-    jsonld = {
+    jsonLD = {
       "@context": storePrefixes,
       "@id": subject,
       "@type": type
@@ -157,13 +161,13 @@ class tgForms
 
     $(selector + " input").each ->
       $this = $(this)
-      jsonld = addToJSONLD(jsonld, $this)
+      jsonLD = addToJSONLD(jsonLD, $this)
 
     $(selector + " span.value").each ->
       $this = $(this)
-      jsonld = addToJSONLD(jsonld, $this)
+      jsonLD = addToJSONLD(jsonLD, $this)
 
-    return jsonld
+    return jsonLD
 
   # getTypeURI
 
