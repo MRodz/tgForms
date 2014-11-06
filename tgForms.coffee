@@ -169,6 +169,11 @@ class tgForms
 
     return jsonLD
 
+  # getPrefixes
+
+  getPrefixes: () ->
+    return storePrefixes
+
   # getTypeURI
 
   getTypeURI: (subject) ->
