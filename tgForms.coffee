@@ -167,6 +167,10 @@ class tgForms
       $this = $(this)
       jsonLD = addToJSONLD(jsonLD, $this)
 
+    $(selector + " textarea").each ->
+      $this = $(this)
+      jsonLD = addToJSONLD(jsonLD, $this)
+
     return jsonLD
 
   # getPrefixes
@@ -197,13 +201,17 @@ class tgForms
 
       $this = $(selector + " div." + predicate).last()
 
-      if not $this.find("input").val() or $this.find("span.value").text()
+      if not $this.find("input").val() or
+          not $this.find("span.value").text() or
+          not $this.find("textarea").val()
         $this.find("input").val(object)
         $this.find("span.value").text(object)
+        $this.find("textarea").val(object)
       else
         field = $this.closest("div.form-group").clone()
         field.children().find("input").val(object)
         field.children().find("span.value").text(object)
+        field.children().find("textarea").val(object)
         $this.closest("div.form-group").after(field)
 
 
