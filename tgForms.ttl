@@ -20,9 +20,6 @@ tgforms:checkbox a rdfs:Class;
 tgforms:dropdown a rdfs:Class;
   rdfs:subClassOf tgforms:input.
 
-tgforms:file a rdfs:Class;
-  rdfs:subClassOf tgforms:input.
-
 tgforms:text a rdfs:Class;
   rdfs:subClassOf tgforms:input.
 
