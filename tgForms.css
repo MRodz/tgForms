@@ -21,3 +21,7 @@ form.tgForms span.repeat:hover {
 form.tgForms div.form-group div {
   float: right;
 }
+
+form.tgForms input[type="checkbox"] {
+  float: right;
+}

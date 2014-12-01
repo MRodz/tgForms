@@ -27,29 +27,45 @@ class tgForms
   # addToJSONLD
 
   addToJSONLD = (jsonLD, domObject) ->
+    if domObject.attr("type") is "checkbox"
+      if domObject.prop("checked")
+        newValue = true
+      else
+        return jsonLD
+
+    if domObject.attr("type") is "text"
+      if domObject.val()
+        newValue = domObject.val()
+      else
+        return jsonLD
+
+    if domObject.prop("tagName") is "SPAN"
+      if domObject.text()
+        newValue = domObject.text()
+      else
+        return jsonLD
+
+    if domObject.prop("tagName") is "TEXTAREA"
+      if domObject.val()
+        newValue = domObject.val()
+      else
+        return jsonLD
+
     classes = domObject.closest("div.form-group").attr("class").split(" ")
 
     for str in classes
       key = str if str.indexOf(":") > -1 and str.indexOf("tgforms") is -1
 
+    if store.find(key, "rdfs:range", "rdfs:Resource")[0]
+      newValue = {"@id": newValue}
+
     oldValue = jsonLD[key]
-
-    if domObject.val()
-      newValue = domObject.val()
-
-      if newValue and store.find(key, "rdfs:range", "rdfs:Resource")[0]
-        newValue = {"@id": newValue}
-    else
-      newValue = domObject.text()
-
-      if newValue and store.find(key, "rdfs:range", "rdfs:Resource")[0]
-        newValue = {"@id": newValue}
 
     if oldValue instanceof Array
       jsonLD[key].push(newValue)
-    else if oldValue and newValue
+    else if oldValue
       jsonLD[key] = [oldValue, newValue]
-    else if newValue
+    else
       jsonLD[key] = newValue
 
     return jsonLD
@@ -201,18 +217,32 @@ class tgForms
 
       $this = $(selector + " div." + predicate).last()
 
-      if not $this.find("input").val() or
-          not $this.find("span.value").text() or
-          not $this.find("textarea").val()
-        $this.find("input").val(object)
+      if $this.find("input").attr("type") is "checkbox"
+        $this.find("input").prop("checked", true) if object is "true"
+
+      if $this.find("input").attr("type") is "text"
+        if $this.find("input").val()
+          field = $this.closest("div.form-group").clone()
+          field.children().find("input").val(object)
+          $this.closest("div.form-group").after(field)
+        else
+          $this.find("input").val(object)
+
+      if $this.find("span.value")
+        if $this.find("span.value").text()
+          field = $this.closest("div.form-group").clone()
+          field.children().find("span.value").text(object)
+          $this.closest("div.form-group").after(field)
+        else
         $this.find("span.value").text(object)
-        $this.find("textarea").val(object)
-      else
-        field = $this.closest("div.form-group").clone()
-        field.children().find("input").val(object)
-        field.children().find("span.value").text(object)
-        field.children().find("textarea").val(object)
-        $this.closest("div.form-group").after(field)
+
+      if $this.find("textarea")
+        if $this.find("textarea").val()
+          field = $this.closest("div.form-group").clone()
+          field.children().find("textarea").val(object)
+          $this.closest("div.form-group").after(field)
+        else
+          $this.find("textarea").val(object)
 
 
 #################
