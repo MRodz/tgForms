@@ -11,20 +11,11 @@
 tgforms:form a rdfs:Class.
 tgforms:input a rdfs:Class.
 
-tgforms:button a rdfs:Class;
-  rdfs:subClassOf tgforms:input.
-
-tgforms:checkbox a rdfs:Class;
-  rdfs:subClassOf tgforms:input.
-
-tgforms:dropdown a rdfs:Class;
-  rdfs:subClassOf tgforms:input.
-
-tgforms:text a rdfs:Class;
-  rdfs:subClassOf tgforms:input.
-
-tgforms:textarea a rdfs:Class;
-  rdfs:subClassOf tgforms:input.
+tgforms:button a tgforms:input.
+tgforms:checkbox a tgforms:input.
+tgforms:dropdown a tgforms:input.
+tgforms:text a tgforms:input.
+tgforms:textarea a tgforms:input.
 
 
 ##################
