@@ -49,6 +49,8 @@ These are the classes of tgForms:
 
 > An input possibility. Properties may have inputs, see the hasInput property.
 
+&nbsp;
+
 The input class has the following instances:
 
 ### button
@@ -70,6 +72,8 @@ The input class has the following instances:
 ### textarea
 
 > A text area. Useful to longer texts.
+
+&nbsp;
 
 tgForms also comes with some properties:
 
