@@ -67,6 +67,11 @@ class tgForms
 
     return jsonLD
 
+  # expandPrefix
+
+  expandPrefix = (string) ->
+    util.expandPrefixedName(string, this.getPrefixes())
+
   # prefixCall
 
   prefixCall = (prefix, uri) ->
@@ -90,12 +95,6 @@ class tgForms
       return 1
 
     return 0
-
-  # expand a Prefix
-
-  expandPrefix = (term) ->
-    # function name will be util.expandPrefixedName in later version of n3.js
-    return util.expandQName(term, this.getPrefixes())
 
   # findFormTriples
 
