@@ -13,13 +13,10 @@ class tgForms
   ### Private attributes ###
 
   parser = N3.Parser()
-
   store = N3.Store()
-  storePrefixes = {}
+  util = N3.Util
 
   templates = {}
-
-  util = N3.Util
 
 
   ### Private methods ###
@@ -74,12 +71,11 @@ class tgForms
 
   prefixCall = (prefix, uri) ->
     store.addPrefix(prefix, uri)
-    storePrefixes[prefix] = uri
 
   # replacePrefixes
 
   replacePrefixes = (string) ->
-    for prefix, uri of storePrefixes
+    for prefix, uri of this.getPrefixes()
       string = string.replace(uri, prefix + ":")
 
     return string
@@ -99,7 +95,7 @@ class tgForms
 
   expandPrefix = (term) ->
     # function name will be util.expandPrefixedName in later version of n3.js
-    return util.expandQName(term, store._prefixes)
+    return util.expandQName(term, this.getPrefixes())
 
   # findFormTriples
 
@@ -213,7 +209,7 @@ class tgForms
 
   getInput: (subject, type, selector) ->
     jsonLD = {
-      "@context": storePrefixes,
+      "@context": this.getPrefixes(),
       "@id": subject,
       "@type": type
     }
@@ -235,7 +231,7 @@ class tgForms
   # getPrefixes
 
   getPrefixes: () ->
-    return storePrefixes
+    return store._prefixes
 
   # getTypeURI
 
