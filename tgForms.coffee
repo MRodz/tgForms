@@ -70,7 +70,16 @@ class tgForms
   # expandPrefix
 
   expandPrefix = (string) ->
-    util.expandPrefixedName(string, this.getPrefixes())
+    return util.expandPrefixedName(string, this.getPrefixes())
+
+  # findListStart
+
+  findListStart = (object) ->
+    triple = store.find(null, null, object)
+    if util.isBlank(triple[0].subject)
+      findListStart(triple[0].subject)
+    else
+      return triple[0]
 
   # prefixCall
 
@@ -122,16 +131,6 @@ class tgForms
          formTriples.push t2
 
     return formTriples
-
-  # findListStart
-  # get the starter of a list from n3store
-
-  findListStart = (subject) ->
-    triple = store.find(null, null, subject)
-    if util.isBlank(triple[0].subject)
-      findListStart(triple[0].subject)
-    else
-      return triple[0]
 
 
   ### Public methods ###
@@ -232,6 +231,11 @@ class tgForms
   getPrefixes: () ->
     return store._prefixes
 
+  # getStore
+
+  getStore: ->
+    return store
+
   # getTypeURI
 
   getTypeURI: (subject) ->
@@ -282,10 +286,6 @@ class tgForms
         else
           $this.find("textarea").val(object)
 
-  # getStore (for debug purposes)
-
-  getStore: ->
-    return store
 
 #################
 ## Interaction ##
