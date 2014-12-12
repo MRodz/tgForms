@@ -70,7 +70,7 @@ class tgForms
   # expandPrefix
 
   expandPrefix = (string) ->
-    return util.expandPrefixedName(string, this.getPrefixes())
+    return util.expandPrefixedName(string, store._prefixes)
 
   # findListStart
 
@@ -89,7 +89,7 @@ class tgForms
   # replacePrefixes
 
   replacePrefixes = (string) ->
-    for prefix, uri of this.getPrefixes()
+    for prefix, uri of store._prefixes
       string = string.replace(uri, prefix + ":")
 
     return string
@@ -207,7 +207,7 @@ class tgForms
 
   getInput: (subject, type, selector) ->
     jsonLD = {
-      "@context": this.getPrefixes(),
+      "@context": store._prefixes,
       "@id": subject,
       "@type": type
     }
