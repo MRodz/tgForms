@@ -105,6 +105,15 @@ class tgForms
 
   findFormTriples = (subject) ->
     formTriples = []
+
+    # is it a subclass?
+    subclasses = store.find(subject, "rdfs:subClassOf", null)
+    for subclass in subclasses
+      mainClassTriples = findFormTriples(replacePrefixes(subclass.object))
+      for mainClassTriple in mainClassTriples
+        mainClassTriple.object = expandPrefix(subject)
+        formTriples.push mainClassTriple
+
     triples = store.find(null, null, subject)
     for triple in triples
       if triple.predicate is expandPrefix("rdfs:domain")
