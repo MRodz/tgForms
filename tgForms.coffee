@@ -95,6 +95,40 @@ class tgForms
 
     return 0
 
+  # expand a Prefix
+
+  expandPrefix = (term) ->
+    # function name will be util.expandPrefixedName in later version of n3.js
+    return util.expandQName(term, store._prefixes)
+
+  # findFormTriples
+
+  findFormTriples = (subject) ->
+    formTriples = []
+    triples = store.find(null, null, subject)
+    for triple in triples
+      if triple.predicate is expandPrefix("rdfs:domain")
+        formTriples.push triple
+      else if triple.predicate is expandPrefix("rdf:first")
+         # we expect a statement like "rdfs:domain [ a owl:Class; owl:unionOf (bol:thing bol:person) ]" here
+         # and want to find its domain
+         t2 = findListStart(triple.subject)
+         # replace blank with subject of this search
+         t2.object = expandPrefix(subject)
+         formTriples.push t2
+
+    return formTriples
+
+  # findListStart
+  # get the starter of a list from n3store
+
+  findListStart = (subject) ->
+    triple = store.find(null, null, subject)
+    if util.isBlank(triple[0].subject)
+      findListStart(triple[0].subject)
+    else
+      return triple[0]
+
 
   ### Public methods ###
 
@@ -115,7 +149,7 @@ class tgForms
     form = []
     formHTML = "<form role=\"form\" class=\"tgForms\">"
 
-    formTriples = store.find(null, "tgforms:belongsToForm", subject)
+    formTriples = findFormTriples(subject)
 
     for formTriple in formTriples
       field = {}
@@ -244,6 +278,10 @@ class tgForms
         else
           $this.find("textarea").val(object)
 
+  # getStore (for debug purposes)
+
+  getStore: ->
+    return store
 
 #################
 ## Interaction ##
