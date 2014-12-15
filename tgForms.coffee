@@ -276,7 +276,7 @@ class tgForms
           field.children().find("span.value").text(object)
           $this.closest("div.form-group").after(field)
         else
-        $this.find("span.value").text(object)
+          $this.find("span.value").text(object)
 
       if $this.find("textarea")
         if $this.find("textarea").val()
