@@ -93,7 +93,7 @@ class tgForms
 
       for rdfClass in getClasses(rdfClass)
         if rdfClasses.indexOf(rdfClass) is -1
-            rdfClasses.push(rdfClass)
+          rdfClasses.push(rdfClass)
 
     return rdfClasses
 
