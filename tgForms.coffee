@@ -105,30 +105,46 @@ class tgForms
 
     return 0
 
+  # findClasses
+
+  findClasses = (subject) ->
+    rdfClasses = []
+    subClassOfTriples = store.find(subject, "rdfs:subClassOf", null)
+
+    for subClassOfTriple in subClassOfTriples
+      rdfClass = replacePrefixes(subClassOfTriple.object)
+      rdfClasses.push(rdfClass)
+
+      for rdfClass in findClasses(rdfClass)
+        rdfClasses.push(rdfClass) if rdfClasses.indexOf(rdfClass) is -1
+
+    return rdfClasses
+
   # findFormTriples
 
   findFormTriples = (subject) ->
     formTriples = []
+    rdfClasses = findClasses(subject)
 
-    # is it a subclass?
-    subclasses = store.find(subject, "rdfs:subClassOf", null)
-    for subclass in subclasses
-      mainClassTriples = findFormTriples(replacePrefixes(subclass.object))
-      for mainClassTriple in mainClassTriples
-        mainClassTriple.object = expandPrefix(subject)
-        formTriples.push mainClassTriple
+    for rdfClass in rdfClasses
+      triples = store.find(null, null, rdfClass)
+      for triple in triples
+        if triple.predicate is expandPrefix("rdfs:domain")
+          formTriples.push(triple)
+        else if triple.predicate is expandPrefix("rdf:first")
 
-    triples = store.find(null, null, subject)
-    for triple in triples
-      if triple.predicate is expandPrefix("rdfs:domain")
-        formTriples.push triple
-      else if triple.predicate is expandPrefix("rdf:first")
-         # we expect a statement like "rdfs:domain [ a owl:Class; owl:unionOf (bol:thing bol:person) ]" here
-         # and want to find its domain
-         t2 = findListStart(triple.subject)
-         # replace blank with subject of this search
-         t2.object = expandPrefix(subject)
-         formTriples.push t2
+          # We expect a statement like
+          # "rdfs:domain [ a owl:Class; owl:unionOf (bol:thing bol:person) ]"
+          # and want to find its domain
+
+          listStart = findListStart(triple.subject)
+
+          # Replace blank node with RDF class
+
+          listStart.object = expandPrefix(rdfClass)
+
+          if listStart.predicate is expandPrefix("rdfs:domain")
+            formTriples.push(listStart)
 
     return formTriples
 
