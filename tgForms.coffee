@@ -21,6 +21,14 @@ class tgForms
 
   ### Private methods ###
 
+  # abbrevURI
+
+  abbrevURI = (string) ->
+    for prefix, uri of store._prefixes
+      string = string.replace(uri, prefix + ":")
+
+    return string
+
   # addToJSONLD
 
   addToJSONLD = (jsonLD, domObject) ->
@@ -55,7 +63,7 @@ class tgForms
 
     rangeObject = store.find(key, "rdfs:range", null)[0].object
 
-    if replacePrefixes(rangeObject) isnt "xsd:string"
+    if abbrevURI(rangeObject) isnt "xsd:string"
       if util.isBlank(rangeObject)
         if getList(getUnionOf(key, "rdfs:range")).indexOf("xsd:string") is -1
           newValue = {"@id": newValue}
@@ -95,10 +103,10 @@ class tgForms
     firstObject = store.find(subject, "rdf:first", null)[0].object
     restObject = store.find(subject, "rdf:rest", null)[0].object
 
-    list.push(replacePrefixes(firstObject))
+    list.push(abbrevURI(firstObject))
 
-    if replacePrefixes(restObject) isnt "rdf:nil"
-      list.push(replacePrefixes(element)) for element in getList(restObject)
+    if abbrevURI(restObject) isnt "rdf:nil"
+      list.push(abbrevURI(element)) for element in getList(restObject)
 
     return list
 
@@ -112,14 +120,6 @@ class tgForms
 
   prefixCall = (prefix, uri) ->
     store.addPrefix(prefix, uri)
-
-  # replacePrefixes
-
-  replacePrefixes = (string) ->
-    for prefix, uri of store._prefixes
-      string = string.replace(uri, prefix + ":")
-
-    return string
 
   # sortFields
 
@@ -139,7 +139,7 @@ class tgForms
     subClassOfTriples = store.find(subject, "rdfs:subClassOf", null)
 
     for subClassOfTriple in subClassOfTriples
-      rdfClass = replacePrefixes(subClassOfTriple.object)
+      rdfClass = abbrevURI(subClassOfTriple.object)
       rdfClasses.push(rdfClass)
 
       for rdfClass in findClasses(rdfClass)
@@ -201,16 +201,16 @@ class tgForms
       field = {}
 
       propTriples = store.find(formTriple.subject, null, null)
-      field["rdf:Property"] = replacePrefixes(propTriples[0].subject)
+      field["rdf:Property"] = abbrevURI(propTriples[0].subject)
       field["tgforms:hasOption"] = []
 
       for propTriple in propTriples
         key = propTriple.predicate
-        key = replacePrefixes(key)
+        key = abbrevURI(key)
 
         value = propTriple.object
         value = util.getLiteralValue(value) if util.isLiteral(value)
-        value = replacePrefixes(value)
+        value = abbrevURI(value)
 
         if key is "tgforms:hasOption"
           field["tgforms:hasOption"].push(value)
@@ -276,7 +276,7 @@ class tgForms
   getType: (subject) ->
     type = store.find(subject, "rdf:type", null)[0].object
     type = util.getLiteralValue(type) if util.isLiteral(type)
-    type = replacePrefixes(type)
+    type = abbrevURI(type)
 
   # fillForm
 
@@ -285,12 +285,12 @@ class tgForms
 
     for triple in triples
       predicate = triple.predicate
-      predicate = replacePrefixes(predicate)
+      predicate = abbrevURI(predicate)
       predicate = predicate.replace(":", "\\:")
 
       object = triple.object
       object = util.getLiteralValue(object) if util.isLiteral(object)
-      object = replacePrefixes(object)
+      object = abbrevURI(object)
 
       $this = $(selector + " div." + predicate).last()
 
