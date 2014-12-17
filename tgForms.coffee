@@ -24,7 +24,7 @@ class tgForms
   # abbrevURI
 
   abbrevURI = (string) ->
-    for prefix, uri of store._prefixes
+    for prefix, uri of getPrefixes()
       string = string.replace(uri, prefix + ":")
 
     return string
@@ -84,7 +84,7 @@ class tgForms
   # expandPrefix
 
   expandPrefix = (string) ->
-    return util.expandPrefixedName(string, store._prefixes)
+    return util.expandPrefixedName(string, getPrefixes())
 
   # findListStart
 
@@ -109,6 +109,11 @@ class tgForms
       list.push(abbrevURI(element)) for element in getList(restObject)
 
     return list
+
+  # getPrefixes
+
+  getPrefixes = () ->
+    return store._prefixes
 
   # getUnionOf
 
@@ -242,7 +247,7 @@ class tgForms
 
   getInput: (subject, type, selector) ->
     jsonLD = {
-      "@context": store._prefixes,
+      "@context": getPrefixes(),
       "@id": subject,
       "@type": type
     }
@@ -264,7 +269,7 @@ class tgForms
   # getPrefixes
 
   getPrefixes: () ->
-    return store._prefixes
+    return getPrefixes()
 
   # getStore
 
