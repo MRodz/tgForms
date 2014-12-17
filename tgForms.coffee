@@ -176,7 +176,8 @@ class tgForms
 
       field["tgforms:hasOption"] = field["tgforms:hasOption"].sort()
       field["tgforms:hasPriority"] = parseInt(field["tgforms:hasPriority"])
-      field["tgforms:isRepeatable"] = field["tgforms:isRepeatable"] is "true"
+      field["tgforms:isRepeatable"] = field["tgforms:isRepeatable"] isnt "false"
+      field["tgforms:hasInput"] = field["tgforms:hasInput"] or "tgforms:text"
 
       form.push(field)
 
