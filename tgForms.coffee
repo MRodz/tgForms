@@ -53,8 +53,14 @@ class tgForms
     for str in classes
       key = str if str.indexOf(":") > -1 and str.indexOf("tgforms") is -1
 
-    if store.find(key, "rdfs:range", "rdfs:Resource")[0]
-      newValue = {"@id": newValue}
+    rangeObject = store.find(key, "rdfs:range", null)[0].object
+
+    if replacePrefixes(rangeObject) isnt "xsd:string"
+      if util.isBlank(rangeObject)
+        if getList(getUnionOf(key, "rdfs:range")).indexOf("xsd:string") is -1
+          newValue = {"@id": newValue}
+      else
+        newValue = {"@id": newValue}
 
     oldValue = jsonLD[key]
 
@@ -80,6 +86,27 @@ class tgForms
       findListStart(triple[0].subject)
     else
       return triple[0]
+
+  # getList
+
+  getList = (subject) ->
+    list = []
+
+    firstObject = store.find(subject, "rdf:first", null)[0].object
+    restObject = store.find(subject, "rdf:rest", null)[0].object
+
+    list.push(replacePrefixes(firstObject))
+
+    if replacePrefixes(restObject) isnt "rdf:nil"
+      list.push(replacePrefixes(element)) for element in getList(restObject)
+
+    return list
+
+  # getUnionOf
+
+  getUnionOf = (subject, predicate) ->
+    mainObject = store.find(subject, predicate, null)[0].object
+    return store.find(mainObject, "owl:unionOf", null)[0].object
 
   # prefixCall
 
