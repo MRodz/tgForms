@@ -6,8 +6,8 @@ class tgForms
   ### Private constants ###
 
   repSearch = new RegExp("<span class=\"label\">(.*)<\/span>")
-  repReplace = "<span class=\"label\">$1<\/span><span class=\"repeat\">" +
-               "[Add One More]</span>"
+  repReplace = "<span class=\"label\">$1<\/span><span class=\"repeat " +
+               "glyphicon glyphicon-plus\" aria-hidden=\"true\"></span>"
 
 
   ### Private attributes ###

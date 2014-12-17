@@ -14,9 +14,9 @@ form.tgForms span.repeat {
   font-weight: normal;
 }
 
-form.tgForms span.repeat:hover {
+/* form.tgForms span.repeat:hover {
   text-decoration: underline;
-}
+} */
 
 form.tgForms div.form-group div {
   float: right;
