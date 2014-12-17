@@ -58,17 +58,12 @@ class tgForms
 
     classes = domObject.closest("div.form-group").attr("class").split(" ")
 
-    for str in classes
-      key = str if str.indexOf(":") > -1 and str.indexOf("tgforms") is -1
+    for string in classes
+      if string.indexOf(":") > -1 and string.indexOf("tgforms") is -1
+        key = string
 
-    rangeObject = store.find(key, "rdfs:range", null)[0].object
-
-    if abbrevURI(rangeObject) isnt "xsd:string"
-      if util.isBlank(rangeObject)
-        if getList(getUnionOf(key, "rdfs:range")).indexOf("xsd:string") is -1
-          newValue = {"@id": newValue}
-      else
-        newValue = {"@id": newValue}
+    if isResource(key)
+      newValue = {"@id": newValue}
 
     oldValue = jsonLD[key]
 
@@ -167,6 +162,22 @@ class tgForms
     unionOfObject = store.find(mainObject, "owl:unionOf", null)[0].object
 
     return unionOfObject
+
+  # isResource
+
+  isResource = (subject) ->
+    rangeObject = store.find(subject, "rdfs:range", null)[0].object
+    result = false
+
+    if not abbrevURI(rangeObject).match(/^xsd:/)
+      result = true
+
+      if util.isBlank(rangeObject)
+        for element in getList(getUnionOf(subject, "rdfs:range"))
+          if element.match(/^xsd:/)
+            result = result and false
+
+    return result
 
   # prefixCall
 
