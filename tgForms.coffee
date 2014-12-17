@@ -238,15 +238,6 @@ class tgForms
     formHTML += "</form>"
     $(selector).html(formHTML)
 
-  # getFormURI
-
-  getFormURI: (subject) ->
-    type = store.find(subject, "rdf:type", null)[0].object
-
-    form = store.find(null, "tgforms:represents", type)[0].subject
-    form = util.getLiteralValue(form) if util.isLiteral(form)
-    form = replacePrefixes(form)
-
   # getInput
 
   getInput: (subject, type, selector) ->
