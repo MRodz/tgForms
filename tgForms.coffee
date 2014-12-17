@@ -271,9 +271,9 @@ class tgForms
   getStore: ->
     return store
 
-  # getTypeURI
+  # getType
 
-  getTypeURI: (subject) ->
+  getType: (subject) ->
     type = store.find(subject, "rdf:type", null)[0].object
     type = util.getLiteralValue(type) if util.isLiteral(type)
     type = replacePrefixes(type)
