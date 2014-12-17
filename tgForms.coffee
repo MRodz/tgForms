@@ -88,7 +88,7 @@ class tgForms
   # getClasses
 
   getClasses = (subject) ->
-    rdfClasses = []
+    rdfClasses = [subject]
     subClassOfTriples = store.find(subject, "rdfs:subClassOf", null)
 
     for subClassOfTriple in subClassOfTriples
