@@ -252,6 +252,8 @@ class tgForms
 
       if field["tgforms:isRepeatable"] isnt "false"
         field["tgforms:isRepeatable"] = true
+      else
+        field["tgforms:isRepeatable"] = false
 
       form.push(field)
 
