@@ -8,6 +8,10 @@ form.tgForms span.label {
   padding-left: 0;
 }
 
+form.tgForms span.resource {
+  padding-right: 8px;
+}
+
 form.tgForms span.repeat {
   color: #428bca;
   cursor: pointer;

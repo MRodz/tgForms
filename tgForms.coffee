@@ -5,6 +5,10 @@
 class tgForms
   ### Private constants ###
 
+  resSearch = new RegExp("<span class=\"label\">(.*)<\/span>")
+  resReplace = "<span class=\"label\">$1<\/span><span class=\"resource " +
+               "glyphicon glyphicon-link\" aria-hidden=\"true\"></span>"
+
   repSearch = new RegExp("<span class=\"label\">(.*)<\/span>")
   repReplace = "<span class=\"label\">$1<\/span><span class=\"repeat " +
                "glyphicon glyphicon-plus\" aria-hidden=\"true\"></span>"
@@ -256,6 +260,9 @@ class tgForms
     for field in form
       template = templates[field["tgforms:hasInput"]]
       fieldHTML = Mustache.render(template, field)
+
+      if isResource(field["rdf:Property"])
+        fieldHTML = fieldHTML.replace(resSearch, resReplace)
 
       if field["tgforms:isRepeatable"]
         fieldHTML = fieldHTML.replace(repSearch, repReplace)
