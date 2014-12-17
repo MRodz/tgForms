@@ -86,14 +86,49 @@ class tgForms
   expandPrefix = (string) ->
     return util.expandPrefixedName(string, getPrefixes())
 
-  # findListStart
+  # getClasses
 
-  findListStart = (object) ->
-    triple = store.find(null, null, object)
-    if util.isBlank(triple[0].subject)
-      findListStart(triple[0].subject)
-    else
-      return triple[0]
+  getClasses = (subject) ->
+    rdfClasses = []
+    subClassOfTriples = store.find(subject, "rdfs:subClassOf", null)
+
+    for subClassOfTriple in subClassOfTriples
+      rdfClass = abbrevURI(subClassOfTriple.object)
+      rdfClasses.push(rdfClass)
+
+      for rdfClass in getClasses(rdfClass)
+        if rdfClasses.indexOf(rdfClass) is -1
+            rdfClasses.push(rdfClass)
+
+    return rdfClasses
+
+  # getFormTriples
+
+  getFormTriples = (subject) ->
+    formTriples = []
+    rdfClasses = getClasses(subject)
+
+    for rdfClass in rdfClasses
+      triples = store.find(null, null, rdfClass)
+      for triple in triples
+        if triple.predicate is expandPrefix("rdfs:domain")
+          formTriples.push(triple)
+        else if triple.predicate is expandPrefix("rdf:first")
+
+          # We expect a statement like
+          # "rdfs:domain [ a owl:Class; owl:unionOf (bol:thing bol:person) ]"
+          # and want to find its domain
+
+          listStart = getListStart(triple.subject)
+
+          # Replace blank node with RDF class
+
+          listStart.object = expandPrefix(rdfClass)
+
+          if listStart.predicate is expandPrefix("rdfs:domain")
+            formTriples.push(listStart)
+
+    return formTriples
 
   # getList
 
@@ -106,9 +141,19 @@ class tgForms
     list.push(abbrevURI(firstObject))
 
     if abbrevURI(restObject) isnt "rdf:nil"
-      list.push(abbrevURI(element)) for element in getList(restObject)
+      for element in getList(restObject)
+        list.push(abbrevURI(element))
 
     return list
+
+  # getListStart
+
+  getListStart = (object) ->
+    triple = store.find(null, null, object)
+    if util.isBlank(triple[0].subject)
+      getListStart(triple[0].subject)
+    else
+      return triple[0]
 
   # getPrefixes
 
@@ -119,7 +164,9 @@ class tgForms
 
   getUnionOf = (subject, predicate) ->
     mainObject = store.find(subject, predicate, null)[0].object
-    return store.find(mainObject, "owl:unionOf", null)[0].object
+    unionOfObject = store.find(mainObject, "owl:unionOf", null)[0].object
+
+    return unionOfObject
 
   # prefixCall
 
@@ -136,49 +183,6 @@ class tgForms
       return 1
 
     return 0
-
-  # findClasses
-
-  findClasses = (subject) ->
-    rdfClasses = []
-    subClassOfTriples = store.find(subject, "rdfs:subClassOf", null)
-
-    for subClassOfTriple in subClassOfTriples
-      rdfClass = abbrevURI(subClassOfTriple.object)
-      rdfClasses.push(rdfClass)
-
-      for rdfClass in findClasses(rdfClass)
-        rdfClasses.push(rdfClass) if rdfClasses.indexOf(rdfClass) is -1
-
-    return rdfClasses
-
-  # findFormTriples
-
-  findFormTriples = (subject) ->
-    formTriples = []
-    rdfClasses = findClasses(subject)
-
-    for rdfClass in rdfClasses
-      triples = store.find(null, null, rdfClass)
-      for triple in triples
-        if triple.predicate is expandPrefix("rdfs:domain")
-          formTriples.push(triple)
-        else if triple.predicate is expandPrefix("rdf:first")
-
-          # We expect a statement like
-          # "rdfs:domain [ a owl:Class; owl:unionOf (bol:thing bol:person) ]"
-          # and want to find its domain
-
-          listStart = findListStart(triple.subject)
-
-          # Replace blank node with RDF class
-
-          listStart.object = expandPrefix(rdfClass)
-
-          if listStart.predicate is expandPrefix("rdfs:domain")
-            formTriples.push(listStart)
-
-    return formTriples
 
 
   ### Public methods ###
@@ -200,7 +204,7 @@ class tgForms
     form = []
     formHTML = "<form role=\"form\" class=\"tgForms\">"
 
-    formTriples = findFormTriples(subject)
+    formTriples = getFormTriples(subject)
 
     for formTriple in formTriples
       field = {}
@@ -214,7 +218,10 @@ class tgForms
         key = abbrevURI(key)
 
         value = propTriple.object
-        value = util.getLiteralValue(value) if util.isLiteral(value)
+
+        if util.isLiteral(value)
+          value = util.getLiteralValue(value)
+
         value = abbrevURI(value)
 
         if key is "tgforms:hasOption"
@@ -222,10 +229,14 @@ class tgForms
         else
           field[key] = value
 
+      if not field["tgforms:hasInput"]
+        field["tgforms:hasInput"] = "tgforms:text"
+
       field["tgforms:hasOption"] = field["tgforms:hasOption"].sort()
       field["tgforms:hasPriority"] = parseInt(field["tgforms:hasPriority"])
-      field["tgforms:isRepeatable"] = field["tgforms:isRepeatable"] isnt "false"
-      field["tgforms:hasInput"] = field["tgforms:hasInput"] or "tgforms:text"
+
+      if field["tgforms:isRepeatable"] isnt "false"
+        field["tgforms:isRepeatable"] = true
 
       form.push(field)
 
@@ -280,7 +291,10 @@ class tgForms
 
   getType: (subject) ->
     type = store.find(subject, "rdf:type", null)[0].object
-    type = util.getLiteralValue(type) if util.isLiteral(type)
+
+    if util.isLiteral(type)
+      type = util.getLiteralValue(type)
+
     type = abbrevURI(type)
 
   # fillForm
@@ -294,13 +308,17 @@ class tgForms
       predicate = predicate.replace(":", "\\:")
 
       object = triple.object
-      object = util.getLiteralValue(object) if util.isLiteral(object)
+
+      if util.isLiteral(object)
+        object = util.getLiteralValue(object)
+
       object = abbrevURI(object)
 
       $this = $(selector + " div." + predicate).last()
 
       if $this.find("input").attr("type") is "checkbox"
-        $this.find("input").prop("checked", true) if object is "true"
+        if object is "true"
+          $this.find("input").prop("checked", true)
 
       if $this.find("input").attr("type") is "text"
         if $this.find("input").val()
