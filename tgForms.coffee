@@ -7,11 +7,11 @@ class tgForms
 
   resSearch = new RegExp("<span class=\"label\">(.*)<\/span>")
   resReplace = "<span class=\"label\">$1<\/span><span class=\"resource " +
-               "glyphicon glyphicon-link\" aria-hidden=\"true\"></span>"
+               "glyphicon glyphicon-link icon-link\" aria-hidden=\"true\"></span>"
 
   repSearch = new RegExp("<span class=\"label\">(.*)<\/span>")
   repReplace = "<span class=\"label\">$1<\/span><span class=\"repeat " +
-               "glyphicon glyphicon-plus\" aria-hidden=\"true\"></span>"
+               "glyphicon glyphicon-plus icon-plus\" aria-hidden=\"true\"></span>"
 
 
   ### Private attributes ###
