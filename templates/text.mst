@@ -1,4 +1,4 @@
-<div class="form-group tgforms:text {{ rdf:Property }}">
+<div class="form-group tgforms:text {{ rdf:Property }}" data-tgform-name="{{ rdf:Property }}">
   <label>
     <span class="label">{{ rdfs:label }}</span>
     <input type="text" class="form-control">

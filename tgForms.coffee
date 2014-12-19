@@ -199,6 +199,57 @@ class tgForms
 
     return 0
 
+  # getFormField
+
+  getFormField = (subject) ->
+    field = {}
+
+    propTriples = store.find(subject, null, null)
+    field["rdf:Property"] = abbrevURI(propTriples[0].subject)
+    field["tgforms:hasOption"] = []
+
+    for propTriple in propTriples
+      key = propTriple.predicate
+      key = abbrevURI(key)
+
+      value = propTriple.object
+
+      if util.isLiteral(value)
+        value = util.getLiteralValue(value)
+
+      value = abbrevURI(value)
+
+      if key is "tgforms:hasOption"
+        field["tgforms:hasOption"].push(value)
+      else
+        field[key] = value
+
+    if not field["tgforms:hasInput"]
+      field["tgforms:hasInput"] = "tgforms:text"
+
+    field["tgforms:hasOption"] = field["tgforms:hasOption"].sort()
+    field["tgforms:hasPriority"] = parseInt(field["tgforms:hasPriority"])
+
+    if field["tgforms:isRepeatable"] isnt "false"
+      field["tgforms:isRepeatable"] = true
+    else
+      field["tgforms:isRepeatable"] = false
+
+    return field
+
+  # renderField
+
+  renderField = (field) ->
+    template = templates[field["tgforms:hasInput"]]
+    fieldHTML = Mustache.render(template, field)
+
+    if isResource(field["rdf:Property"])
+      fieldHTML = fieldHTML.replace(resSearch, resReplace)
+
+    if field["tgforms:isRepeatable"]
+      fieldHTML = fieldHTML.replace(repSearch, repReplace)
+
+    return fieldHTML
 
   ### Public methods ###
 
@@ -222,54 +273,14 @@ class tgForms
     formTriples = getFormTriples(subject)
 
     for formTriple in formTriples
-      field = {}
 
-      propTriples = store.find(formTriple.subject, null, null)
-      field["rdf:Property"] = abbrevURI(propTriples[0].subject)
-      field["tgforms:hasOption"] = []
-
-      for propTriple in propTriples
-        key = propTriple.predicate
-        key = abbrevURI(key)
-
-        value = propTriple.object
-
-        if util.isLiteral(value)
-          value = util.getLiteralValue(value)
-
-        value = abbrevURI(value)
-
-        if key is "tgforms:hasOption"
-          field["tgforms:hasOption"].push(value)
-        else
-          field[key] = value
-
-      if not field["tgforms:hasInput"]
-        field["tgforms:hasInput"] = "tgforms:text"
-
-      field["tgforms:hasOption"] = field["tgforms:hasOption"].sort()
-      field["tgforms:hasPriority"] = parseInt(field["tgforms:hasPriority"])
-
-      if field["tgforms:isRepeatable"] isnt "false"
-        field["tgforms:isRepeatable"] = true
-      else
-        field["tgforms:isRepeatable"] = false
-
+      field = getFormField(formTriple.subject)
       form.push(field)
 
     form = form.sort(sortFields)
 
     for field in form
-      template = templates[field["tgforms:hasInput"]]
-      fieldHTML = Mustache.render(template, field)
-
-      if isResource(field["rdf:Property"])
-        fieldHTML = fieldHTML.replace(resSearch, resReplace)
-
-      if field["tgforms:isRepeatable"]
-        fieldHTML = fieldHTML.replace(repSearch, repReplace)
-
-      formHTML += fieldHTML
+      formHTML += renderField(field)
 
     formHTML += "</form>"
     $(selector).html(formHTML)
@@ -301,6 +312,10 @@ class tgForms
 
   getPrefixes: () ->
     return getPrefixes()
+
+  # TODO: why does making abbrevUri public not work?
+  abbrevURI: (string) ->
+    abbrevURI(string)
 
   # getStore
 
@@ -364,6 +379,15 @@ class tgForms
         else
           $this.find("textarea").val(object)
 
+  # getFormField
+
+  getFormField: (subject) ->
+    getFormField(subject)
+
+  # renderField
+
+  renderField: (field) ->
+    renderField(field)
 
 #################
 ## Interaction ##
@@ -372,10 +396,13 @@ class tgForms
 $(document).on("click", "span.repeat", ->
   $this = $(this)
 
-  field = $this.closest("div.form-group").clone()
-  field.children().find("input").val("")
-  field.children().find("span.value").text("")
-  $this.closest("div.form-group").after(field)
+  inputname = $this.closest("div.form-group").attr("data-tgform-name")
+  console.log(inputname)
+  # TODO: this is not done well, as it assumes the name of the tgForms Object to be tgf
+  field = tgf.getFormField(inputname)
+  fieldHtml = tgf.renderField(field)
+
+  $this.closest("div.form-group").after(fieldHtml)
 
   focusCall = -> $this.closest("div.form-group").next().find("input").focus()
   setTimeout(focusCall, 25)

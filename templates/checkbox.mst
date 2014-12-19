@@ -1,4 +1,4 @@
-<div class="form-group tgforms:checkbox {{ rdf:Property }}">
+<div class="form-group tgforms:checkbox {{ rdf:Property }}" data-tgform-name="{{ rdf:Property }}">
   <label>
     <span class="label">{{ rdfs:label }}</span>
     <input type="checkbox">

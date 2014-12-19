@@ -1,4 +1,4 @@
-<div class="form-group tgforms:textarea {{ rdf:Property }}">
+<div class="form-group tgforms:textarea {{ rdf:Property }}" data-tgform-name="{{ rdf:Property }}">
   <label>
     <span class="label">{{ rdfs:label }}</span>
     <textarea class="form-control" rows="3"></textarea>
