@@ -313,7 +313,8 @@ class tgForms
   getPrefixes: () ->
     return getPrefixes()
 
-  # TODO: why does making abbrevUri public not work?
+  # abbrevURI
+
   abbrevURI: (string) ->
     abbrevURI(string)
 
