@@ -240,6 +240,21 @@ class tgForms
 
     return fieldHTML
 
+  # repeatField
+
+  repeatField = ->
+    $this = $(this)
+
+    fieldName = $this.closest("div.form-group").attr("data-tgform-name")
+    field = tgf.getFormField(fieldName)
+    fieldHTML = tgf.renderField(field)
+
+    $this.closest("div.form-group").after(fieldHTML)
+    $("span.repeat").unbind("click").click(repeatField)
+
+    focusCall = -> $this.closest("div.form-group").next().find("input").focus()
+    setTimeout(focusCall, 25)
+
   # sortFields
 
   sortFields = (a, b) ->
@@ -290,6 +305,8 @@ class tgForms
     formHTML += "</form>"
     $(selector).html(formHTML)
 
+    $("span.repeat").unbind("click").click(repeatField)
+
   # fillForm
 
   fillForm: (subject, selector) ->
@@ -336,6 +353,8 @@ class tgForms
           $this.closest("div.form-group").after(field)
         else
           $this.find("textarea").val(object)
+
+    $("span.repeat").unbind("click").click(repeatField)
 
   # getFormField
 
@@ -394,21 +413,6 @@ class tgForms
 #################
 ## Interaction ##
 #################
-
-$(document).on("click", "span.repeat", ->
-  $this = $(this)
-
-  inputname = $this.closest("div.form-group").attr("data-tgform-name")
-  console.log(inputname)
-  # TODO: this is not done well, as it assumes the name of the tgForms Object to be tgf
-  field = tgf.getFormField(inputname)
-  fieldHtml = tgf.renderField(field)
-
-  $this.closest("div.form-group").after(fieldHtml)
-
-  focusCall = -> $this.closest("div.form-group").next().find("input").focus()
-  setTimeout(focusCall, 25)
-)
 
 $(document).on("click", "ul.dropdown-menu li", (e) ->
   e.preventDefault()
