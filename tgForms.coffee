@@ -60,11 +60,7 @@ class tgForms
       else
         return jsonLD
 
-    classes = domObject.closest("div.form-group").attr("class").split(" ")
-
-    for string in classes
-      if string.indexOf(":") > -1 and string.indexOf("tgforms") is -1
-        key = string
+    key = domObject.closest("div.form-group").attr("data-tgforms-name")
 
     if isResource(key)
       newValue = {"@id": newValue}
@@ -245,7 +241,7 @@ class tgForms
   repeatField = ->
     $this = $(this)
 
-    fieldName = $this.closest("div.form-group").attr("data-tgform-name")
+    fieldName = $this.closest("div.form-group").attr("data-tgforms-name")
     field = tgf.getFormField(fieldName)
     fieldHTML = tgf.renderField(field)
 

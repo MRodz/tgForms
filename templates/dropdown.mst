@@ -1,4 +1,4 @@
-<div class="form-group tgforms:dropdown {{ rdf:Property }}" data-tgform-name="{{ rdf:Property }}">
+<div class="form-group" data-tgforms-type="tgforms:dropdown" data-tgforms-name="{{ rdf:Property }}">
   <span class="label">{{ rdfs:label }}</span>
   <div class="btn-group">
     <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
