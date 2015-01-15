@@ -101,6 +101,44 @@ class tgForms
 
     return rdfClasses
 
+  # getFormField
+
+  getFormField = (subject) ->
+    field = {}
+
+    propTriples = store.find(subject, null, null)
+    field["rdf:Property"] = abbrevURI(propTriples[0].subject)
+    field["tgforms:hasOption"] = []
+
+    for propTriple in propTriples
+      key = propTriple.predicate
+      key = abbrevURI(key)
+
+      value = propTriple.object
+
+      if util.isLiteral(value)
+        value = util.getLiteralValue(value)
+
+      value = abbrevURI(value)
+
+      if key is "tgforms:hasOption"
+        field["tgforms:hasOption"].push(value)
+      else
+        field[key] = value
+
+    if not field["tgforms:hasInput"]
+      field["tgforms:hasInput"] = "tgforms:text"
+
+    field["tgforms:hasOption"] = field["tgforms:hasOption"].sort()
+    field["tgforms:hasPriority"] = parseInt(field["tgforms:hasPriority"])
+
+    if field["tgforms:isRepeatable"] isnt "false"
+      field["tgforms:isRepeatable"] = true
+    else
+      field["tgforms:isRepeatable"] = false
+
+    return field
+
   # getFormTriples
 
   getFormTriples = (subject) ->
@@ -188,55 +226,6 @@ class tgForms
   prefixCall = (prefix, uri) ->
     store.addPrefix(prefix, uri)
 
-  # sortFields
-
-  sortFields = (a, b) ->
-    if a["tgforms:hasPriority"] > b["tgforms:hasPriority"]
-      return -1
-
-    if a["tgforms:hasPriority"] < b["tgforms:hasPriority"]
-      return 1
-
-    return 0
-
-  # getFormField
-
-  getFormField = (subject) ->
-    field = {}
-
-    propTriples = store.find(subject, null, null)
-    field["rdf:Property"] = abbrevURI(propTriples[0].subject)
-    field["tgforms:hasOption"] = []
-
-    for propTriple in propTriples
-      key = propTriple.predicate
-      key = abbrevURI(key)
-
-      value = propTriple.object
-
-      if util.isLiteral(value)
-        value = util.getLiteralValue(value)
-
-      value = abbrevURI(value)
-
-      if key is "tgforms:hasOption"
-        field["tgforms:hasOption"].push(value)
-      else
-        field[key] = value
-
-    if not field["tgforms:hasInput"]
-      field["tgforms:hasInput"] = "tgforms:text"
-
-    field["tgforms:hasOption"] = field["tgforms:hasOption"].sort()
-    field["tgforms:hasPriority"] = parseInt(field["tgforms:hasPriority"])
-
-    if field["tgforms:isRepeatable"] isnt "false"
-      field["tgforms:isRepeatable"] = true
-    else
-      field["tgforms:isRepeatable"] = false
-
-    return field
-
   # renderField
 
   renderField = (field) ->
@@ -251,7 +240,24 @@ class tgForms
 
     return fieldHTML
 
+  # sortFields
+
+  sortFields = (a, b) ->
+    if a["tgforms:hasPriority"] > b["tgforms:hasPriority"]
+      return -1
+
+    if a["tgforms:hasPriority"] < b["tgforms:hasPriority"]
+      return 1
+
+    return 0
+
+
   ### Public methods ###
+
+  # abbrevURI
+
+  abbrevURI: (string) ->
+    abbrevURI(string)
 
   # addTurtle
 
@@ -273,7 +279,6 @@ class tgForms
     formTriples = getFormTriples(subject)
 
     for formTriple in formTriples
-
       field = getFormField(formTriple.subject)
       form.push(field)
 
@@ -284,54 +289,6 @@ class tgForms
 
     formHTML += "</form>"
     $(selector).html(formHTML)
-
-  # getInput
-
-  getInput: (subject, type, selector) ->
-    jsonLD = {
-      "@context": getPrefixes(),
-      "@id": subject,
-      "@type": type
-    }
-
-    $(selector + " input").each ->
-      $this = $(this)
-      jsonLD = addToJSONLD(jsonLD, $this)
-
-    $(selector + " span.value").each ->
-      $this = $(this)
-      jsonLD = addToJSONLD(jsonLD, $this)
-
-    $(selector + " textarea").each ->
-      $this = $(this)
-      jsonLD = addToJSONLD(jsonLD, $this)
-
-    return jsonLD
-
-  # getPrefixes
-
-  getPrefixes: () ->
-    return getPrefixes()
-
-  # abbrevURI
-
-  abbrevURI: (string) ->
-    abbrevURI(string)
-
-  # getStore
-
-  getStore: ->
-    return store
-
-  # getType
-
-  getType: (subject) ->
-    type = store.find(subject, "rdf:type", null)[0].object
-
-    if util.isLiteral(type)
-      type = util.getLiteralValue(type)
-
-    type = abbrevURI(type)
 
   # fillForm
 
@@ -385,10 +342,54 @@ class tgForms
   getFormField: (subject) ->
     getFormField(subject)
 
+  # getInput
+
+  getInput: (subject, type, selector) ->
+    jsonLD = {
+      "@context": getPrefixes(),
+      "@id": subject,
+      "@type": type
+    }
+
+    $(selector + " input").each ->
+      $this = $(this)
+      jsonLD = addToJSONLD(jsonLD, $this)
+
+    $(selector + " span.value").each ->
+      $this = $(this)
+      jsonLD = addToJSONLD(jsonLD, $this)
+
+    $(selector + " textarea").each ->
+      $this = $(this)
+      jsonLD = addToJSONLD(jsonLD, $this)
+
+    return jsonLD
+
+  # getPrefixes
+
+  getPrefixes: () ->
+    return getPrefixes()
+
+  # getStore
+
+  getStore: ->
+    return store
+
+  # getType
+
+  getType: (subject) ->
+    type = store.find(subject, "rdf:type", null)[0].object
+
+    if util.isLiteral(type)
+      type = util.getLiteralValue(type)
+
+    type = abbrevURI(type)
+
   # renderField
 
   renderField: (field) ->
     renderField(field)
+
 
 #################
 ## Interaction ##
