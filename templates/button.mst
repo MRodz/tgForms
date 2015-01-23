@@ -1,4 +1,4 @@
-<div class="form-group" data-tgforms-type="tgforms:button" data-tgforms-name="{{ rdf:Property }}">
+<div class="form-group tgforms:button {{ rdf:Property }}" data-tgforms-type="tgforms:button" data-tgforms-name="{{ rdf:Property }}">
   <span class="label">{{ rdfs:label }}</span>
   <div>
     <span class="value">{{ tgforms:hasDefault }}</span>
