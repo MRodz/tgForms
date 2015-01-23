@@ -311,6 +311,7 @@ class tgForms
     for triple in triples
       predicate = triple.predicate
       predicate = abbrevURI(predicate)
+      predicate = predicate.replace(":", "\\:")
 
       object = triple.object
 
@@ -319,8 +320,7 @@ class tgForms
 
       object = abbrevURI(object)
 
-      nameSelector = selector + " div[data-tgforms-name=\"" + predicate + "\"]"
-      $this = $(nameSelector).last()
+      $this = $(selector + " div." + predicate).last()
 
       if $this.find("input").attr("type") is "checkbox"
         if object is "true"
