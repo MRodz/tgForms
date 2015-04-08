@@ -304,6 +304,10 @@ class tgForms
 
     $("span.repeat").unbind("click").click(repeatField)
 
+    $("form.tgForms").on("click", "ul.dropdown-menu li", ->
+      $(this).closest("div.form-group").find("span.value").text($(this).text())
+    )
+
   # fillForm
 
   fillForm: (subject, selector) ->
@@ -405,10 +409,3 @@ class tgForms
 
   renderField: (field) ->
     renderField(field)
-
-
-$(document).on("click", "ul.dropdown-menu li", (e) ->
-  e.preventDefault()
-  $this = $(this)
-  $this.closest("div.form-group").find("span.value").text($this.text())
-)
