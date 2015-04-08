@@ -240,8 +240,8 @@ class tgForms
     $this = $(this)
 
     fieldName = $this.closest("div.form-group").attr("data-tgforms-name")
-    field = tgf.getFormField(fieldName)
-    fieldHTML = tgf.renderField(field).replace(labelSearch, deleteReplace)
+    field = getFormField(fieldName)
+    fieldHTML = renderField(field).replace(labelSearch, deleteReplace)
 
     $this.closest("div.form-group").after(fieldHTML)
     $("span.repeat").unbind("click").click(repeatField)
