@@ -1,29 +1,27 @@
-#############
-## tgForms ##
-#############
-
 class tgForms
-  ### Private constants ###
 
-  resSearch = new RegExp("<span class=\"label\">(.*)<\/span>")
-  resReplace = "<span class=\"label\">$1<\/span><span class=\"resource " +
-               "glyphicon glyphicon-link icon-link\" aria-hidden=\"true\"></span>"
+  ##### Variables #####
 
-  repSearch = new RegExp("<span class=\"label\">(.*)<\/span>")
-  repReplace = "<span class=\"label\">$1<\/span><span class=\"repeat " +
-               "glyphicon glyphicon-plus icon-plus\" aria-hidden=\"true\"></span>"
+  # Object for the field templates, filled durgin the build process
 
+  templates = {}
 
-  ### Private attributes ###
+  # Regular expressions used to add icons to the field labels
+
+  labelSearch = new RegExp("<span class=\"label\">(.*)<\/span>")
+  resourceReplace = "<span class=\"label\">$1<\/span><span class=\"resource " +
+      "glyphicon glyphicon-link icon-link\" aria-hidden=\"true\"></span>"
+  repeatReplace = "<span class=\"label\">$1<\/span><span class=\"repeat " +
+      "glyphicon glyphicon-plus icon-plus\" aria-hidden=\"true\"></span>"
+  deleteReplace = "<span class=\"label\">$1<\/span><span class=\"delete " +
+      "glyphicon glyphicon-minus icon-minus\" aria-hidden=\"true\"></span>"
 
   parser = N3.Parser()
   store = N3.Store()
   util = N3.Util
 
-  templates = {}
 
-
-  ### Private methods ###
+  ##### Private methods #####
 
   # abbrevURI
 
@@ -229,10 +227,10 @@ class tgForms
     fieldHTML = Mustache.render(template, field)
 
     if isResource(field["rdf:Property"])
-      fieldHTML = fieldHTML.replace(resSearch, resReplace)
+      fieldHTML = fieldHTML.replace(labelSearch, resourceReplace)
 
     if field["tgforms:isRepeatable"]
-      fieldHTML = fieldHTML.replace(repSearch, repReplace)
+      fieldHTML = fieldHTML.replace(labelSearch, repeatReplace)
 
     return fieldHTML
 
@@ -243,10 +241,13 @@ class tgForms
 
     fieldName = $this.closest("div.form-group").attr("data-tgforms-name")
     field = tgf.getFormField(fieldName)
-    fieldHTML = tgf.renderField(field)
+    fieldHTML = tgf.renderField(field).replace(labelSearch, deleteReplace)
 
     $this.closest("div.form-group").after(fieldHTML)
     $("span.repeat").unbind("click").click(repeatField)
+    $this.closest("div.form-group").next().find("span.delete").click(->
+      $(this).closest("div.form-group").remove()
+    )
 
     focusCall = -> $this.closest("div.form-group").next().find("input").focus()
     setTimeout(focusCall, 25)
@@ -263,7 +264,7 @@ class tgForms
     return 0
 
 
-  ### Public methods ###
+  ##### Public methods #####
 
   # abbrevURI
 
@@ -405,10 +406,6 @@ class tgForms
   renderField: (field) ->
     renderField(field)
 
-
-#################
-## Interaction ##
-#################
 
 $(document).on("click", "ul.dropdown-menu li", (e) ->
   e.preventDefault()

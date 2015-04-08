@@ -12,20 +12,15 @@ form.tgForms span.resource {
   padding-right: 8px;
 }
 
-form.tgForms span.repeat {
+form.tgForms span.repeat,
+form.tgForms span.delete {
   color: #428bca;
   cursor: pointer;
   font-weight: normal;
 }
 
-/* form.tgForms span.repeat:hover {
-  text-decoration: underline;
-} */
-
-form.tgForms div.form-group div {
-  float: right;
-}
-
-form.tgForms input[type="checkbox"] {
+form.tgForms div.tgforms\:button div,
+form.tgForms div.tgforms\:checkbox input,
+form.tgForms div.tgforms\:dropdown div {
   float: right;
 }
