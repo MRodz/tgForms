@@ -23,15 +23,11 @@ class tgForms
 
   ##### Private methods #####
 
-  # abbrevURI
-
   abbrevURI = (string) ->
     for prefix, uri of getPrefixes()
       string = string.replace(uri, prefix + ":")
 
     return string
-
-  # addToJSONLD
 
   addToJSONLD = (jsonLD, domObject) ->
     if domObject.attr("type") is "checkbox"
@@ -74,12 +70,8 @@ class tgForms
 
     return jsonLD
 
-  # expandPrefix
-
   expandPrefix = (string) ->
     return util.expandPrefixedName(string, getPrefixes())
-
-  # getClasses
 
   getClasses = (subject) ->
     rdfClasses = [subject]
@@ -95,12 +87,22 @@ class tgForms
 
     return rdfClasses
 
-  # getFormField
+  getFieldHTML = (fieldObject) ->
+    template = templates[fieldObject["tgforms:hasInput"]]
+    fieldHTML = Mustache.render(template, fieldObject)
 
-  getFormField = (subject) ->
+    if isResource(fieldObject["rdf:Property"])
+      fieldHTML = fieldHTML.replace(labelSearch, resourceReplace)
+
+    if fieldObject["tgforms:isRepeatable"]
+      fieldHTML = fieldHTML.replace(labelSearch, repeatReplace)
+
+    return fieldHTML
+
+  getFieldObject = (fieldName) ->
     field = {}
 
-    propTriples = store.find(subject, null, null)
+    propTriples = store.find(fieldName, null, null)
     field["rdf:Property"] = abbrevURI(propTriples[0].subject)
     field["tgforms:hasOption"] = []
 
@@ -133,8 +135,6 @@ class tgForms
 
     return field
 
-  # getFormTriples
-
   getFormTriples = (subject) ->
     formTriples = []
     rdfClasses = getClasses(subject)
@@ -161,8 +161,6 @@ class tgForms
 
     return formTriples
 
-  # getList
-
   getList = (subject) ->
     list = []
 
@@ -177,29 +175,21 @@ class tgForms
 
     return list
 
-  # getListStart
-
   getListStart = (object) ->
     triple = store.find(null, null, object)
+
     if util.isBlank(triple[0].subject)
-      getListStart(triple[0].subject)
+      return getListStart(triple[0].subject)
     else
       return triple[0]
 
-  # getPrefixes
-
-  getPrefixes = () ->
+  getPrefixes = ->
     return store._prefixes
-
-  # getUnionOf
 
   getUnionOf = (subject, predicate) ->
     mainObject = store.find(subject, predicate, null)[0].object
     unionOfObject = store.find(mainObject, "owl:unionOf", null)[0].object
-
     return unionOfObject
-
-  # isResource
 
   isResource = (subject) ->
     rangeObject = store.find(subject, "rdfs:range", null)[0].object
@@ -215,36 +205,19 @@ class tgForms
 
     return result
 
-  # prefixCall
-
   prefixCall = (prefix, uri) ->
     store.addPrefix(prefix, uri)
-
-  # renderField
-
-  renderField = (field) ->
-    template = templates[field["tgforms:hasInput"]]
-    fieldHTML = Mustache.render(template, field)
-
-    if isResource(field["rdf:Property"])
-      fieldHTML = fieldHTML.replace(labelSearch, resourceReplace)
-
-    if field["tgforms:isRepeatable"]
-      fieldHTML = fieldHTML.replace(labelSearch, repeatReplace)
-
-    return fieldHTML
-
-  # repeatField
 
   repeatField = ->
     $this = $(this)
 
     fieldName = $this.closest("div.form-group").attr("data-tgforms-name")
-    field = getFormField(fieldName)
-    fieldHTML = renderField(field).replace(labelSearch, deleteReplace)
+    fieldHTML = getFieldHTML(getFieldObject(fieldName))
+    fieldHTML = fieldHTML.replace(labelSearch, deleteReplace)
 
     $this.closest("div.form-group").after(fieldHTML)
     $("span.repeat").unbind("click").click(repeatField)
+
     $this.closest("div.form-group").next().find("span.delete").click(->
       $(this).closest("div.form-group").remove()
     )
@@ -252,26 +225,17 @@ class tgForms
     focusCall = -> $this.closest("div.form-group").next().find("input").focus()
     setTimeout(focusCall, 25)
 
-  # sortFields
-
   sortFields = (a, b) ->
     if a["tgforms:hasPriority"] > b["tgforms:hasPriority"]
       return -1
-
-    if a["tgforms:hasPriority"] < b["tgforms:hasPriority"]
+    else
       return 1
-
-    return 0
 
 
   ##### Public methods #####
 
-  # abbrevURI
-
   abbrevURI: (string) ->
-    abbrevURI(string)
-
-  # addTurtle
+    return abbrevURI(string)
 
   addTurtle: (turtle, addCall) ->
     tripleCall = (error, triple, prefixes) ->
@@ -282,22 +246,17 @@ class tgForms
 
     parser.parse(turtle, tripleCall, prefixCall)
 
-  # buildForm
-
-  buildForm: (subject, selector) ->
+  buildForm: (formName, selector) ->
     form = []
     formHTML = "<form role=\"form\" class=\"tgForms\">"
 
-    formTriples = getFormTriples(subject)
-
-    for formTriple in formTriples
-      field = getFormField(formTriple.subject)
-      form.push(field)
+    for formTriple in getFormTriples(formName)
+      form.push(getFieldObject(formTriple.subject))
 
     form = form.sort(sortFields)
 
-    for field in form
-      formHTML += renderField(field)
+    for fieldObject in form
+      formHTML += getFieldHTML(fieldObject)
 
     formHTML += "</form>"
     $(selector).html(formHTML)
@@ -307,8 +266,6 @@ class tgForms
     $("form.tgForms").on("click", "ul.dropdown-menu li", ->
       $(this).closest("div.form-group").find("span.value").text($(this).text())
     )
-
-  # fillForm
 
   fillForm: (subject, selector) ->
     triples = store.find(subject, null, null)
@@ -357,12 +314,16 @@ class tgForms
 
     $("span.repeat").unbind("click").click(repeatField)
 
-  # getFormField
+  getFieldHTML: (fieldObject) ->
+    return getFieldHTML(fieldObject)
 
-  getFormField: (subject) ->
-    getFormField(subject)
+  getFieldObject: (fieldName) ->
+    return getFieldObject(fieldName)
 
-  # getInput
+  getFormField: (fieldName) ->
+    # DEPRECATED as of 04/09/15: Please use getFieldObject instead
+    console.log("getFormField is DEPRECATED: Please use getFieldObject instead")
+    return getFieldObject(fieldName)
 
   getInput: (subject, type, selector) ->
     jsonLD = {
@@ -385,27 +346,18 @@ class tgForms
 
     return jsonLD
 
-  # getPrefixes
-
-  getPrefixes: () ->
+  getPrefixes: ->
     return getPrefixes()
-
-  # getStore
 
   getStore: ->
     return store
 
-  # getType
-
   getType: (subject) ->
     type = store.find(subject, "rdf:type", null)[0].object
+    type = util.getLiteralValue(type) if util.isLiteral(type)
+    return abbrevURI(type)
 
-    if util.isLiteral(type)
-      type = util.getLiteralValue(type)
-
-    type = abbrevURI(type)
-
-  # renderField
-
-  renderField: (field) ->
-    renderField(field)
+  renderField: (fieldObject) ->
+    # DEPRECATED as of 04/09/15: Please use makeField instead
+    console.log("renderField is DEPRECATED: Please use getFieldHTML instead")
+    return getFieldHTML(fieldObject)
