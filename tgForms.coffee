@@ -272,8 +272,7 @@ class tgForms
 
     for triple in triples
       predicate = triple.predicate
-      predicate = abbrevURI(predicate)
-      predicate = predicate.replace(":", "\\:")
+      fieldName = abbrevURI(predicate)
 
       object = triple.object
 
@@ -282,7 +281,8 @@ class tgForms
 
       object = abbrevURI(object)
 
-      $this = $(selector + " div." + predicate).last()
+      escapedName = fieldName.replace(":", "\\:")
+      $this = $(selector + " div." + escapedName).last()
 
       if $this.find("input").attr("type") is "checkbox"
         if object is "true"
@@ -290,29 +290,36 @@ class tgForms
 
       if $this.find("input").attr("type") is "text"
         if $this.find("input").val()
-          field = $this.closest("div.form-group").clone()
-          field.children().find("input").val(object)
-          $this.closest("div.form-group").after(field)
+          fieldHTML = getFieldHTML(getFieldObject(fieldName))
+          fieldHTML = fieldHTML.replace(labelSearch, deleteReplace)
+          $this.closest("div.form-group").after(fieldHTML)
+          $this.closest("div.form-group").next().find("input").val(object)
         else
           $this.find("input").val(object)
 
       if $this.find("span.value")
         if $this.find("span.value").text()
-          field = $this.closest("div.form-group").clone()
-          field.children().find("span.value").text(object)
-          $this.closest("div.form-group").after(field)
+          fieldHTML = getFieldHTML(getFieldObject(fieldName))
+          fieldHTML = fieldHTML.replace(labelSearch, deleteReplace)
+          $this.closest("div.form-group").after(fieldHTML)
+          $this.closest("div.form-group").next().find("span.value").text(object)
         else
           $this.find("span.value").text(object)
 
       if $this.find("textarea")
         if $this.find("textarea").val()
-          field = $this.closest("div.form-group").clone()
-          field.children().find("textarea").val(object)
-          $this.closest("div.form-group").after(field)
+          fieldHTML = getFieldHTML(getFieldObject(fieldName))
+          fieldHTML = fieldHTML.replace(labelSearch, deleteReplace)
+          $this.closest("div.form-group").after(fieldHTML)
+          $this.closest("div.form-group").next().find("textarea").val(object)
         else
           $this.find("textarea").val(object)
 
     $("span.repeat").unbind("click").click(repeatField)
+
+    $("span.delete").unbind("click").click(->
+      $(this).closest("div.form-group").remove()
+    )
 
   getFieldHTML: (fieldObject) ->
     return getFieldHTML(fieldObject)
