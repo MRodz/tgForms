@@ -96,6 +96,7 @@ class tgForms
 
     if fieldObject["tgforms:isRepeatable"]
       fieldHTML = fieldHTML.replace(labelSearch, repeatReplace)
+      fieldHTML = fieldHTML.replace(labelSearch, deleteReplace)
 
     return fieldHTML
 
@@ -213,13 +214,13 @@ class tgForms
 
     fieldName = $this.closest("div.form-group").attr("data-tgforms-name")
     fieldHTML = getFieldHTML(getFieldObject(fieldName))
-    fieldHTML = fieldHTML.replace(labelSearch, deleteReplace)
 
     $this.closest("div.form-group").after(fieldHTML)
     $("span.repeat").unbind("click").click(repeatField)
 
     $this.closest("div.form-group").next().find("span.delete").click(->
-      $(this).closest("div.form-group").remove()
+      $(this).closest("div.form-group").find("span.value").text("")
+      $(this).closest("div.form-group").find("input").val("")
     )
 
     focusCall = -> $this.closest("div.form-group").next().find("input").focus()
@@ -291,7 +292,6 @@ class tgForms
       if $this.find("input").attr("type") is "text"
         if $this.find("input").val()
           fieldHTML = getFieldHTML(getFieldObject(fieldName))
-          fieldHTML = fieldHTML.replace(labelSearch, deleteReplace)
           $this.closest("div.form-group").after(fieldHTML)
           $this.closest("div.form-group").next().find("input").val(object)
         else
@@ -300,7 +300,6 @@ class tgForms
       if $this.find("span.value")
         if $this.find("span.value").text()
           fieldHTML = getFieldHTML(getFieldObject(fieldName))
-          fieldHTML = fieldHTML.replace(labelSearch, deleteReplace)
           $this.closest("div.form-group").after(fieldHTML)
           $this.closest("div.form-group").next().find("span.value").text(object)
         else
@@ -309,7 +308,6 @@ class tgForms
       if $this.find("textarea")
         if $this.find("textarea").val()
           fieldHTML = getFieldHTML(getFieldObject(fieldName))
-          fieldHTML = fieldHTML.replace(labelSearch, deleteReplace)
           $this.closest("div.form-group").after(fieldHTML)
           $this.closest("div.form-group").next().find("textarea").val(object)
         else
@@ -318,7 +316,8 @@ class tgForms
     $("span.repeat").unbind("click").click(repeatField)
 
     $("span.delete").unbind("click").click(->
-      $(this).closest("div.form-group").remove()
+      $(this).closest("div.form-group").find("span.value").text("")
+      $(this).closest("div.form-group").find("input").val("")
     )
 
   getFieldHTML: (fieldObject) ->
