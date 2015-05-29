@@ -8,7 +8,6 @@
 ### Classes ###
 ###############
 
-tgforms:form a rdfs:Class.
 tgforms:input a rdfs:Class.
 
 tgforms:button a tgforms:input.
@@ -21,9 +20,6 @@ tgforms:textarea a tgforms:input.
 ##################
 ### Properties ###
 ##################
-
-tgforms:belongsToForm a rdf:Property;
-  rdfs:range tgforms:form.
 
 tgforms:hasInput a rdf:Property;
   rdfs:range tgforms:input.
@@ -39,6 +35,3 @@ tgforms:hasPriority a rdf:Property;
 
 tgforms:isRepeatable a rdf:Property;
   rdfs:range xsd:boolean.
-
-tgforms:represents a rdf:Property;
-  rdfs:range rdfs:Class.

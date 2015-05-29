@@ -1,11 +1,11 @@
 # tgForms
 
-> Generate HTML forms from Turtle RDF representations
+> Generate HTML forms from RDF/Turtle
 
-tgForms is a JavaScript library to generate HTML forms from Turtle RDF representations. It was originally written for the use with [TextGrid](http://textgrid.de).
+tgForms is a JavaScript library to generate HTML forms from RDF/Turtle. It was originally written for the use with [TextGrid](http://textgrid.de).
+
 
 ## Installation
-
 
 If you have [node.js](http://nodejs.org) and [Bower](http://bower.io) installed, you can get the latest development version of tgForms with the following command:
 
@@ -18,6 +18,7 @@ If you want to download a specific pre-compiled version of tgForms, just append 
 ```sh
 $ bower install hriebl/tgForms#0.1
 ```
+
 
 ## Compilation
 
@@ -35,106 +36,56 @@ $ unzip -nx "compiler-latest.zip"
 $ cake minify
 ```
 
-## Turtle
 
-First, you need to define a form in a Turtle file. [See an example here.](https://github.com/hriebl/bolPerson/blob/master/src/main/webapp/bolPerson.ttl)
+## Vocabulary
 
-These are the classes of tgForms:
+tgForms understands some [RDF Schema](http://www.w3.org/TR/rdf-schema) properties, namely rdfs:domain, rdfs:label, and rdfs:range, and interprets their subjects as form fields. Forms can be generated for classes that are used as objects of rdfs:domain. The library also comes with the following specific properties to refine forms:
 
-### form
+### tgforms:hasInput
 
-> A form. Properties may belong to forms, see the belongsToForm property.
+> Sets the input type for a property.
 
-### input
+### tgforms:hasDefault
 
-> An input possibility. Properties may have inputs, see the hasInput property.
+> Sets the default value for a property.
 
-&nbsp;
+### tgforms:hasOption
 
-The input class has the following instances:
+> Sets a dropdown option for a property.
 
-### button
+### tgforms:hasPriority
 
-> A button. May be manually scripted, useful for specific input possibilities.
+> Sets the priority for a property. Higher priorities appear first.
 
-### checkbox
-
-> A checkbox. Useful for true or false options.
-
-### dropdown
-
-> A dropbox menu. Useful if there is a closed set of possible values.
-
-### text
-
-> A text field. Useful for short texts.
-
-### textarea
-
-> A text area. Useful to longer texts.
-
-&nbsp;
-
-tgForms also comes with some properties:
-
-### belongsToForm
-
-> Links a property to a form.
-
-### hasInput
-
-> Links a property to a instance of input.
-
-### hasDefault
-
-> Sets a default value value for a property.
-
-### hasOption
-
-> Sets an option for a property. May only be used with the dropdown class.
-
-### hasPriority
-
-> Sets an priority for a property. Properties with higher priorities appear before properties with lower priorities.
-
-### isRepeatable
+### tgforms:isRepeatable
 
 > Makes a property repeatable.
 
-### represents
+<br> The following input types are available for the use with tgforms:hasInput:
 
-> Links a form to another RDFS class.
+### tgforms:button
 
-## JavaScript
+> A button. May be manually scripted.
 
-Now, you can work with your Turtle file using the JS library. [See an example here.](https://github.com/hriebl/bolPerson/blob/master/src/main/webapp/bolPerson.coffee)
+### tgforms:checkbox
 
-The tgForms class offers the following public methods:
+> A checkbox. Useful for boolean properties.
 
-### addTurtle(*turtle*, *addCall*)
+### tgforms:dropdown
 
-Adds turtle data to the triple store and executes a callback afterwards. *turtle* is a string representing turtle data, *addCall* is a function.
+> A dropbox menu. Useful if there is a limited number of options.
 
-### buildForm(*subject*, *selector*)
+### tgforms:text
 
-Builds a form into a DOM object. *subject* is a string representing an instance of form, *selector* is a string representing a CSS selector.
+> A text field. Useful for short texts.
 
-### getFormURI(*subject*)
+### tgforms:textarea
 
-Returns a form URI. *subject* is a string representing a form subject.
+> A text area. Useful to longer texts.
 
-### getInput(*subject*, *type*, *selector*)
 
-Returns a JSON-LD representation of a form input. *subject* is a string representing a form subject, *type* is a string representing the RDF type of subject, *selector* is a string representing a CSS selector for a DOM object containing a form.
+## Usage
 
-### getPrefixes()
+tgForms is compatible with the RDF/Turtle from [schema.rdfs.org](http://schema.rdfs.org). If you like, take a look at [some CoffeScript code](https://github.com/hriebl/bolPerson/blob/master/src/main/webapp/bolPerson.coffee) that generates a form for the schema:BarOrPub class.
 
-Returns the prefixes of the triple store as a JS object.
-
-### getTypeURI(*subject*)
-
-Returns a type URI. *subject* is a string representing a form subject.
-
-### fillForm(*subject*, *selector*)
-
-Fills a form. *subject* is a string representing a form subject, *selector* is a string representing a CSS selector for a DOM object containing a form.
+**TODO**: Add up-to-date information about public methods, for the moment take a look at [the source code](https://github.com/hriebl/tgForms/blob/944c179cc22bd261ba590c58e440c6c75e276c9e/tgForms.coffee#L236).
